@@ -5,6 +5,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import threading
+import uuid
+from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 
 from common import ROOT, character_dir, load_json, load_settings
@@ -80,6 +84,17 @@ def vision_index(folder: Path) -> dict[str, dict]:
             merged["note_id"] = data.get("note_id") or jf.stem
             out[key] = merged
     return out
+
+
+def inspiration_vision(path: Path) -> dict:
+    resolved = str(path.resolve())
+    for folder in path.resolve().parents:
+        if not is_under(folder, library_root()):
+            break
+        row = vision_index(folder).get(resolved)
+        if row:
+            return row
+    return {}
 
 
 def pipeline_characters() -> list[dict]:
@@ -320,35 +335,101 @@ def review_path() -> Path:
     return results_root() / "review.json"
 
 
-def load_reviews() -> dict:
-    p = review_path()
-    if not p.is_file():
-        return {}
+REVIEW_STATUSES = ("unreviewed", "pass", "manual_review", "quarantine")
+STORE_LOCK = threading.RLock()
+
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def atomic_json(path: Path, value) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + "." + uuid.uuid4().hex + ".tmp")
     try:
-        data = load_json(p)
-    except (OSError, json.JSONDecodeError):
+        tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        tmp.replace(path)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
+def local_store(name: str) -> dict:
+    path = results_root() / name
+    if not path.exists():
         return {}
-    return data if isinstance(data, dict) else {}
+    data = load_json(path)
+    if not isinstance(data, dict):
+        raise ValueError(f"{name} 格式错误，请保留文件后检查")
+    return data
 
 
-def save_review(result_id: str, status: str, note: str = "") -> dict:
-    import time
-    reviews = load_reviews()
-    reviews[result_id] = {
-        "status": status,
-        "note": note,
-        "updated_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-    }
-    review_path().write_text(
-        json.dumps(reviews, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-    )
-    return reviews[result_id]
+def load_reviews() -> dict:
+    return local_store("review.json")
+
+
+def save_review(result_id: str, status: str, note: str | None = None) -> dict:
+    if status not in REVIEW_STATUSES:
+        raise ValueError("审核状态不合法")
+    with STORE_LOCK:
+        reviews = load_reviews()
+        old = reviews.get(result_id) or {"status": "unreviewed", "note": ""}
+        history = list(old.get("history") or [])
+        history.append({k: old.get(k) for k in ("status", "note", "updated_at")})
+        reviews[result_id] = {
+            "status": status,
+            "note": old.get("note", "") if note is None else note,
+            "updated_at": now_iso(),
+            "history": history[-100:],
+        }
+        atomic_json(review_path(), reviews)
+        return reviews[result_id]
+
+
+def undo_review(result_id: str) -> dict:
+    with STORE_LOCK:
+        reviews = load_reviews()
+        old = reviews.get(result_id) or {}
+        history = list(old.get("history") or [])
+        if not history:
+            raise ValueError("这张图没有可撤销的审核操作")
+        previous = history.pop()
+        previous.update(history=history, updated_at=now_iso())
+        reviews[result_id] = previous
+        atomic_json(review_path(), reviews)
+        return previous
+
+
+def save_draft(key: str, value: dict | None) -> None:
+    with STORE_LOCK:
+        drafts = local_store("drafts.json")
+        if value is None:
+            drafts.pop(key, None)
+        else:
+            drafts[key] = {**value, "updated_at": now_iso()}
+        atomic_json(results_root() / "drafts.json", drafts)
+
+
+def save_preset(name: str, value: dict | None) -> dict:
+    if not name.strip() or len(name) > 80:
+        raise ValueError("模板名称应为 1～80 个字")
+    with STORE_LOCK:
+        presets = local_store("presets.json")
+        if value is None:
+            presets.pop(name, None)
+        else:
+            presets[name] = {**value, "updated_at": now_iso()}
+        atomic_json(results_root() / "presets.json", presets)
+        return presets
 
 
 def _log_index(out_dir: Path) -> dict[str, dict]:
     """Map result id -> latest run_log record for one output folder."""
     log = out_dir / "run_log.jsonl"
-    out: dict[str, dict] = {}
+    out: dict[str, dict] = {
+        j["id"]: dict(j, ok=True)
+        for j in local_store("jobs.json").values()
+        if isinstance(j, dict) and j.get("id") and j.get("out_dir") == str(out_dir)
+    }
     if not log.is_file():
         return out
     try:
@@ -422,73 +503,101 @@ def _char_id_for(series: str, character_name: str) -> str:
     return ""
 
 
-def list_results(series_filter: str = "", status_filter: str = "all") -> dict:
-    """Scan generated results across the desktop library.
+@lru_cache(maxsize=1024)
+def _image_info(path: str, mtime: int, size: int) -> dict:
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            return {"width": im.width, "height": im.height, "format": im.format}
+    except (OSError, ImportError):
+        return {}
 
-    A result is an image produced by the pipeline (not a `left_` inspiration copy).
-    Review state is stored in `_results/review.json` keyed by a stable id.
-    """
+
+def list_results(series_filter: str = "", status_filter: str = "all") -> dict:
     reviews = load_reviews()
+    characters = pipeline_characters()
     items: list[dict] = []
     for out_dir in _result_dirs():
+        try:
+            relative = out_dir.relative_to(library_root())
+            series = relative.parts[0]
+        except ValueError:
+            continue
+        character = out_dir.parents[1].name
+        char_id = next((c["id"] for c in characters
+                        if c["series"] == series and c["desktop_character"] == character), "")
         logs = _log_index(out_dir)
-        folder_label = out_dir.name
-        series = out_dir.parts[out_dir.parts.index("二创") + 1] if "二创" in out_dir.parts else ""
         for img in iter_images(out_dir):
-            if img.name.startswith("left_"):
+            if img.name.startswith(("left_", "_")):
                 continue
             rid = img.stem
             rec = logs.get(rid) or {}
-            inspire = str(rec.get("inspire") or "")
-            if not inspire:
-                # Fall back to the sibling left_<id>.<ext> copy.
-                cands = sorted(out_dir.glob(f"left_{rid}.*"))
-                if cands:
-                    inspire = str(cands[0])
-            result_id = f"{series}|{out_dir.parents[1].name}|{folder_label}|{rid}"
-            review = reviews.get(result_id) or {}
-            character = out_dir.parents[1].name if len(out_dir.parents) > 1 else ""
-            char_id = _char_id_for(series, character)
-            shot = str(rec.get("shot") or "")
-            pose = str(rec.get("pose") or "")
-            style = str(rec.get("style") or "")
-            send_ref = bool(rec.get("send_inspire")) or bool(inspire)
-            prompt_preview, negative_preview = _prompt_for(char_id, shot, pose, style, send_ref)
-            item = {
-                "result_id": result_id,
-                "id": rid,
-                "series": series,
-                "character": character,
-                "char_id": char_id,
-                "folder": folder_label,
-                "path": str(img),
-                "bytes": img.stat().st_size,
-                "mtime": img.stat().st_mtime,
-                "inspire": inspire,
-                "shot": shot,
-                "pose": pose,
-                "style": style,
-                "send_inspire": send_ref,
-                "prompt_preview": prompt_preview,
-                "negative_preview": negative_preview,
-                "sec": rec.get("sec"),
-                "has_params": bool(shot or pose or style or inspire),
-                "review": review or {"status": "unreviewed", "note": "", "updated_at": ""},
-            }
-            if series_filter and item["series"] != series_filter:
-                continue
-            st = item["review"].get("status") or "unreviewed"
-            if status_filter not in ("", "all") and st != status_filter:
-                continue
-            items.append(item)
-    items.sort(key=lambda x: (x["series"], x["folder"], x["mtime"], x["id"]))
-    counts = {"all": 0, "unreviewed": 0, "pass": 0, "manual_review": 0, "quarantine": 0}
+            source = str(rec.get("inspire") or "")
+            copies = [p for p in sorted(out_dir.glob(f"left_{rid}.*")) if p.suffix.lower() in IMAGE_EXT]
+            inspire = str(copies[0]) if copies else str(rec.get("display_input") or source)
+            if inspire and (not allowed_path(Path(inspire)) or not Path(inspire).is_file()):
+                inspire = ""
+            result_id = f"{series}|{character}|{out_dir.name}|{rid}"
+            review = reviews.get(result_id) or {"status": "unreviewed", "note": "", "updated_at": ""}
+            shot, pose = str(rec.get("shot") or ""), str(rec.get("pose") or "")
+            style = str(rec.get("style") or rec.get("mood") or "")
+            p, n = _prompt_for(char_id, shot, pose, style, bool(inspire))
+            exact = rec.get("final_prompt")
+            if exact is None and rec.get("prompt_override"):
+                exact = str(rec["prompt_override"])
+                if rec.get("negative_override"):
+                    exact += "\nNegative: " + str(rec["negative_override"])
+            stat = img.stat()
+            info = _image_info(str(img), stat.st_mtime_ns, stat.st_size)
+            items.append({
+                "result_id": result_id, "id": rid, "series": series,
+                "character": character, "char_id": char_id, "folder": out_dir.name,
+                "path": str(img), "bytes": stat.st_size, "mtime": stat.st_mtime,
+                "inspire": inspire, "source_inspire": source,
+                "shot": shot, "pose": pose, "style": style,
+                "send_inspire": rec.get("send_inspire") if isinstance(rec.get("send_inspire"), bool) else None,
+                "final_prompt": exact,
+                "prompt_source": "recorded" if exact is not None else "reconstructed",
+                "suggested_prompt": exact if exact is not None else p + ("\nNegative: " + n if n else ""),
+                "prompt_preview": p, "negative_preview": n,
+                "model": rec.get("model"), "size": rec.get("size") or None,
+                "quality": rec.get("quality") or None,
+                "reference_inputs": rec.get("reference_inputs") or [],
+                "mode": rec.get("mode"), "redo_of": rec.get("redo_of") or "",
+                "parent_result_id": rec.get("parent_result_id") or "",
+                "sec": rec.get("sec"), "actual": info, "task_status": rec.get("status"),
+                "has_params": exact is not None or bool(shot or pose or style),
+                "review": review,
+            })
+    by_id = {it["result_id"]: it for it in items}
     for it in items:
-        counts["all"] += 1
-        st = it["review"].get("status") or "unreviewed"
+        if not it["parent_result_id"] and it["redo_of"]:
+            parents = [p for p in items if p["id"] == it["redo_of"] and p["char_id"] == it["char_id"]]
+            if len(parents) == 1:
+                it["parent_result_id"] = parents[0]["result_id"]
+        parent = by_id.get(it["parent_result_id"])
+        it["parent_path"] = parent["path"] if parent else ""
+        it["parent_id"] = parent["id"] if parent else ""
+    # Resolve children once legacy parent ids have all been mapped.
+    for it in items:
+        it["children"] = [c["result_id"] for c in items if c["parent_result_id"] == it["result_id"]]
+    items.sort(key=lambda it: (-it["mtime"], it["result_id"]))
+    series_names = sorted({it["series"] for it in items})
+    candidates = [it for it in items if not series_filter or it["series"] == series_filter]
+    counts = {"all": len(candidates), **{s: 0 for s in REVIEW_STATUSES}}
+    for it in candidates:
+        st = it["review"].get("status", "unreviewed")
         if st in counts:
             counts[st] += 1
-    return {"total": len(items), "items": items, "counts": counts}
+    page = [it for it in candidates if status_filter in ("", "all") or it["review"]["status"] == status_filter]
+    return {"total": len(page), "items": page, "counts": counts, "series": series_names}
+
+
+def find_result(result_id: str) -> dict:
+    item = next((it for it in list_results()["items"] if it["result_id"] == result_id), None)
+    if not item:
+        raise ValueError("结果不存在或已移走，请刷新列表")
+    return item
 
 
 def original_dir(character_id: str) -> Path:
@@ -531,5 +640,4 @@ def ensure_thumb(src: Path) -> Path:
 
 
 def job_id() -> str:
-    import time
-    return time.strftime("s%m%d-%H%M%S")
+    return datetime.now().strftime("s%m%d-%H%M%S-") + uuid.uuid4().hex[:8]

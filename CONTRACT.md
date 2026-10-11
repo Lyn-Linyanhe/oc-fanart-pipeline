@@ -274,8 +274,15 @@ V0.1 目标是在这条旧流程前后增加筛图/描述、角色档案选择�
 
 ## 工作台对接（给主对话）
 
-- 库根：`GET /api/state` → `library`、`characters[]`（含 `has_ref`）。
-- 灵感：`GET /api/inspire?exclude=<本作品名>`。
-- 草稿：`GET /api/draft?path=`（文件名规则，不是视觉模型；精修仍靠 agent）。
-- 出图：`POST /api/generate`。
-- 对比：工作台灯箱，或桌面上的 `compare.html`。
+工作台详情见 `docs/creator-workflow.md`；主要接口：
+
+- 库根/角色/设置：`GET /api/state` → `library`、`characters[]`（含 `has_ref`、`ref_path`）、`settings`（含 `models`、`size_presets`、`has_key`，不含 key）。
+- 灵感：`GET /api/inspire?exclude=<本作品名>&series=&vision=all|usable|todo|text&limit=&offset=`。
+- 预览参考计划与提示词：`POST /api/prepare {character, parent_result_id?, inspire?, send_inspire, mode: redo|refine}` → `{final_prompt, prompt_source, references[]}`。
+- 生成：`POST /api/generate {character, final_prompt（必填，原样发送）, model?, size?, quality?, mode, inspire?, send_inspire, parent_result_id?, client_request_id}` → 任务入队落盘，`client_request_id` 幂等去重。
+- 审阅：`GET /api/results?series=&status=`；`POST /api/review {result_id, status, note?, undo?}`（通过/待复核/垃圾篓/撤销）。
+- 草稿/模板：`GET /api/editor`、`POST /api/draft/save {key, draft|null}`、`POST /api/preset {name, preset|null}`。
+- 取消：`POST /api/cancel {id}`，只能取消尚未开始的排队任务。
+- 对比：工作台一页一组左右大图 + 上一版本切换；旧 `compare.html` 仍可用。
+
+旧版 `POST /api/generate` 的 `shot/pose/style|prompt_override` 字段仍兼容 CLI 批处理（`scripts/generate.py --jobs`），工作台前端已改为整段 `final_prompt` 直发。

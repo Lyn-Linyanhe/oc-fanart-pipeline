@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import mimetypes
 import sys
 import time
 import urllib.error
@@ -92,7 +93,7 @@ def post_multipart(url: str, fields: dict, files: list[tuple[str, Path]], settin
         chunks.append(f'Content-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode())
     for field, path in files:
         raw = path.read_bytes()
-        mime = "image/png" if path.suffix.lower() == ".png" else "image/jpeg"
+        mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
         chunks.append(f"--{boundary}\r\n".encode())
         chunks.append(
             f'Content-Disposition: form-data; name="{field}"; filename="{path.name}"\r\n'.encode()
@@ -130,53 +131,52 @@ def decode_image(item: dict) -> bytes:
         return resp.read()
 
 
-def generate_one(settings: dict, bible: dict, job: dict) -> bytes:
-    # A caller-supplied prompt wins verbatim, so the studio can show the user the
-    # exact text that will be sent and let them edit it directly.
+def resolve_prompt(bible: dict, job: dict) -> str:
+    if job.get("final_prompt") is not None:
+        text = str(job["final_prompt"])
+        if not text.strip():
+            raise ValueError("提示词不能为空")
+        return text
     if job.get("prompt_override"):
         prompt = str(job["prompt_override"])
-        negative = str(job.get("negative_override") or bible.get("forbid") or "watermark, text, extra fingers")
+        negative = (str(job["negative_override"]) if job.get("negative_override") is not None
+                    else str(bible.get("forbid") or "watermark, text, extra fingers"))
     else:
         prompt, negative = build_prompt(bible, job)
-    refs = ref_images(job["character"])
-    pose = pose_path(job.get("pose_ref"))
-    files: list[tuple[str, Path]] = []
-    if refs:
-        files.append(("image", refs[0]))
-    if pose:
-        files.append(("image", pose))
+    return prompt + (f"\nNegative: {negative}" if negative else "")
 
-    # Per-job override lets the studio switch quality/size for one submission
-    # without touching the global config.
+
+def generate_one(settings: dict, bible: dict, job: dict) -> bytes:
+    prompt = resolve_prompt(bible, job)
+    files: list[tuple[str, Path]] = []
+    if "reference_inputs" in job:
+        for item in job["reference_inputs"]:
+            path = Path(item["path"])
+            if not path.is_file():
+                raise ValueError("本次参考图已丢失，请重新选择")
+            files.append(("image", path))
+    else:
+        refs = ref_images(job["character"])
+        pose = pose_path(job.get("pose_ref"))
+        if refs:
+            files.append(("image", refs[0]))
+        if pose:
+            files.append(("image", pose))
     size = str(job.get("size") or settings["size"])
     quality = str(job.get("quality") or settings["quality"])
-
+    fields = {
+        "model": str(job.get("model") or settings["model"]),
+        "prompt": prompt,
+        "size": size,
+        "quality": quality,
+    }
     if files:
-        fields = {
-            "model": settings["model"],
-            "prompt": prompt + f"\nNegative: {negative}",
-            "size": size,
-            "quality": quality,
-        }
-        result = post_multipart(
-            f"{settings['base_url']}/images/edits",
-            fields,
-            files,
-            settings,
-        )
+        result = post_multipart(f"{settings['base_url']}/images/edits", fields, files, settings)
     else:
-        payload = {
-            "model": settings["model"],
-            "prompt": prompt + f"\nNegative: {negative}",
-            "size": size,
-            "quality": quality,
-            "n": 1,
-        }
-        result = post_json(f"{settings['base_url']}/images/generations", payload, settings)
-
+        result = post_json(f"{settings['base_url']}/images/generations", {**fields, "n": 1}, settings)
     data = result.get("data") or []
     if not data:
-        raise RuntimeError(f"空响应: {json.dumps(result)[:500]}")
+        raise RuntimeError("接口返回空图片结果")
     return decode_image(data[0])
 
 
