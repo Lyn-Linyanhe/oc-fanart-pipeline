@@ -1,0 +1,12 @@
+{
+  "id": "frieren",
+  "name": "芙莉莲",
+  "lock": "1girl, Frieren, petite elf mage, long silver-white twintails, pointed ears, green eyes, small red drop earrings, pale skin, white robe with gold trim, striped black-and-white inner shirt, dark pants, brown boots, holding a wooden staff with a large red orb, same character as reference, official anime look",
+  "forbid": "different hair color, short hair, human ears, adult woman proportions, modern clothes unless the job says so, extra limbs, extra fingers, watermark, text, logo, photorealistic, copying another fanart's face",
+  "style": "anime illustration, Sousou no Frieren official art style, clean lineart, soft lighting, detailed face",
+  "notes": "身份只锁 refs/01_fullbody.png 与本 bible。他山之石只提供构图文字，不作为脸/衣服参考图。",
+  "desktop": {
+    "series": "葬送的芙莉莲",
+    "character": "芙莉莲"
+  }
+}

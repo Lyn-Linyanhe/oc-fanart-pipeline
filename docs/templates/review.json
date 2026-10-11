@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1",
+  "review_id": "review-0001",
+  "version_id": "version-uuid",
+  "reviewer": {
+    "kind": "cheap_vision_model",
+    "provider": null,
+    "model": null
+  },
+  "status": "manual_review",
+  "issues": [],
+  "evidence": [],
+  "revision_plan": {
+    "summary": null,
+    "prompt_module_changes": [],
+    "reference_changes": {
+      "add": [],
+      "remove": [],
+      "replace": []
+    },
+    "parameter_changes": {}
+  },
+  "human_review": {
+    "status": "pending",
+    "notes": null
+  }
+}

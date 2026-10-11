@@ -1,0 +1,8 @@
+{
+  "id": "demo",
+  "name": "示例角色（请改成你的）",
+  "lock": "1girl, teenage, long black hair, straight bangs, amber eyes, pale skin, school uniform, white shirt, navy blazer, red ribbon, consistent character",
+  "forbid": "different hair color, short hair, adult, male, extra limbs, extra fingers, watermark, text, logo, photorealistic",
+  "style": "anime illustration, clean lineart, vivid colors, detailed face, cinematic lighting",
+  "notes": "把 refs/ 放 3–8 张正脸/全身干净图。有图时走 images/edits 锁身份；没图时只用 lock 文生图。"
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": "0.1",
+  "request_id": "frieren-example-001",
+  "character": "frieren",
+  "intent": {
+    "summary": "示例：芙莉莲借用一个完整的非身份构图，保留角色克制的温和好奇",
+    "preserve_persona": true,
+    "allowed_changes": ["本次任务明确的动作、场景与画风"],
+    "must_not_copy": ["构图参考中的人物脸、发型、服装、文字和署名"]
+  },
+  "reference_package": {
+    "identity": [
+      {
+        "path": "characters/frieren/refs/01_fullbody.png",
+        "role": "identity_and_outfit",
+        "reason": "旧版兼容主参考；当前真正可上传的唯一 refs 图片"
+      }
+    ],
+    "style": [],
+    "composition": {
+      "group_id": null,
+      "ordered_paths": [],
+      "is_split_wide": false
+    },
+    "upload_manifest": [
+      {
+        "order": 1,
+        "path": "characters/frieren/refs/01_fullbody.png",
+        "responsibilities": ["identity", "body_and_outfit"]
+      }
+    ],
+    "request_ready": false,
+    "capability_check": {
+      "provider": null,
+      "model": null,
+      "max_images": null,
+      "checked_at": null,
+      "status": "unverified"
+    }
+  },
+  "image_design": {
+    "identity": "芙莉莲的银白色双马尾、绿色眼睛、尖耳、红色耳饰和娇小体型必须保持",
+    "persona_expression": "用轻微偏头、柔和眼神和小幅度嘴角变化表现安静好奇，不使用无理由的夸张大笑",
+    "action_and_form": null,
+    "camera_and_composition": null,
+    "scene_lighting_palette": null,
+    "style_material_detail": null,
+    "decorations": [],
+    "visible_psychology": "对眼前对象感兴趣但仍保持克制",
+    "negative_constraints": [
+      "不要复制任何构图灵感人物的脸、发型或服装",
+      "不要只使用 split_wide 的一半",
+      "不要生成水印、长文字或无关 logo"
+    ]
+  },
+  "prompt": {
+    "positive": null,
+    "negative": null,
+    "version": "0.1"
+  },
+  "parameters": {
+    "preset": "draft",
+    "model": "gpt-image-2.5-sunburst",
+    "size": "1024x1024",
+    "quality": "medium",
+    "output_format": null
+  }
+}

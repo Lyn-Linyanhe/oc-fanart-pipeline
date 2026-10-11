@@ -1,0 +1,30 @@
+# 密钥与本机配置：绝不提交
+.env
+.env.local
+*.local.json
+image-edit.local.json
+
+# 本机会话交接文档（含私有会话 id 与凭据线索）
+HANDOFF-PROMPT.md
+
+# 运行产物与缓存
+out/
+inbox/
+.studio/
+__pycache__/
+*.pyc
+
+# 素材：他人作品与官方图，不公开
+characters/*/refs/*.png
+characters/*/refs/*.jpg
+characters/*/refs/*.webp
+poses/*.png
+poses/*.jpg
+poses/*.webp
+inbox/**
+!characters/demo/refs/.gitkeep
+!poses/.gitkeep
+
+# 桌面库与生成结果不进仓库
+二创/
+_results/

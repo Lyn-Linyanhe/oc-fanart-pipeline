@@ -1,0 +1,46 @@
+{
+  "schema_version": "0.1",
+  "description_id": "note-or-image-id",
+  "source": {
+    "series": null,
+    "note_id": null,
+    "paths": [],
+    "keyword": null
+  },
+  "group": {
+    "kind": "single",
+    "ordered_paths": [],
+    "split_wide": false,
+    "group_status": "unverified"
+  },
+  "screening": {
+    "status": "manual_review",
+    "usable_for_inspiration": null,
+    "reason": null,
+    "visible_subject": null,
+    "contains_person": null,
+    "contains_large_text": null,
+    "is_ad_or_video_still": null
+  },
+  "description": {
+    "character_count": null,
+    "characters": [],
+    "shot": null,
+    "action": null,
+    "expression": null,
+    "scene": null,
+    "lighting_and_palette": null,
+    "decorations": [],
+    "visible_facts": [],
+    "interpretations": []
+  },
+  "model": {
+    "provider": null,
+    "model": null,
+    "prompt_version": null
+  },
+  "human_review": {
+    "status": "pending",
+    "notes": null
+  }
+}

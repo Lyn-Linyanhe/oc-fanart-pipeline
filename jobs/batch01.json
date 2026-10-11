@@ -1,0 +1,28 @@
+{
+  "jobs": [
+    {
+      "id": "j001",
+      "character": "demo",
+      "shot": "cowboy shot, slight low angle",
+      "pose": "standing, looking back over shoulder",
+      "mood": "rainy night alley, neon reflections on wet ground",
+      "pose_ref": null
+    },
+    {
+      "id": "j002",
+      "character": "demo",
+      "shot": "medium close-up",
+      "pose": "sitting on a classroom desk, one leg dangling, chin on palm",
+      "mood": "late afternoon sun through window blinds, dust motes",
+      "pose_ref": null
+    },
+    {
+      "id": "j003",
+      "character": "demo",
+      "shot": "full body",
+      "pose": "walking forward under a transparent umbrella",
+      "mood": "overcast street, puddles, soft rim light",
+      "pose_ref": null
+    }
+  ]
+}

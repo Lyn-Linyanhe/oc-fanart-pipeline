@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.1",
+  "version_id": "version-uuid",
+  "work_id": "work-0001",
+  "parent_version_id": null,
+  "storage_state": "active",
+  "execution": {
+    "status": "not_submitted",
+    "submitted_at": null,
+    "finished_at": null,
+    "error_kind": null,
+    "error_message": null,
+    "request_count": 0
+  },
+  "artifacts": {
+    "image_path": null,
+    "inspiration_paths": [],
+    "generation_request_path": null,
+    "review_path": null
+  },
+  "snapshots": {
+    "character_profile": null,
+    "prompt_positive": null,
+    "prompt_negative": null,
+    "reference_package": null,
+    "parameters": null
+  },
+  "review": {
+    "status": "manual_review",
+    "issues": [],
+    "evidence": [],
+    "revision_plan": null
+  },
+  "human_actions": []
+}

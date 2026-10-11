@@ -1,0 +1,21 @@
+{
+  "base_url": "https://image-direct.geiliapi.com/v1",
+  "model": "gpt-image-2.5-sunburst",
+  "size": "1024x1536",
+  "quality": "high",
+  "size_presets": {
+    "auto": "auto",
+    "1:1": "1024x1024",
+    "3:2": "1536x1024",
+    "2:3": "1024x1536",
+    "4:3": "1365x1024",
+    "3:4": "1024x1365",
+    "16:9": "1536x864",
+    "9:16": "864x1536"
+  },
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  "min_bytes": 20000,
+  "timeout_sec": 600,
+  "library": "",
+  "studio_port": 8788
+}

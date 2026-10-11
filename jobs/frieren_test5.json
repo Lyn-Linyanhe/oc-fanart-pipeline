@@ -1,0 +1,54 @@
+{
+  "jobs": [
+    {
+      "id": "t01",
+      "character": "frieren",
+      "shot": "medium close-up, looking at camera",
+      "pose": "both hands holding a small chibi doll in front of her chest, gentle smile",
+      "mood": "indoor, dotted pastel background, coffee cup on the table, cute and calm",
+      "pose_ref": null,
+      "inspire": "<desktop-library>/熏香花朵凌然绽放/他山之石/02_6a217eb600_02.webp",
+      "inspire_from": "熏香花朵凌然绽放"
+    },
+    {
+      "id": "t02",
+      "character": "frieren",
+      "shot": "extreme close-up of face",
+      "pose": "holding a smartphone that covers her mouth, eyes looking over the phone at the viewer",
+      "mood": "manga close-up lighting, serious quiet expression, high contrast",
+      "pose_ref": null,
+      "inspire": "<desktop-library>/熏香花朵凌然绽放/他山之石/07_6a2559b300_04.webp",
+      "inspire_from": "熏香花朵凌然绽放"
+    },
+    {
+      "id": "t03",
+      "character": "frieren",
+      "shot": "over-the-shoulder from behind, hair filling the right side",
+      "pose": "standing with back partly to camera, looking toward a sunlit forest lake, long hair blown by wind",
+      "mood": "green forest, sparkling water, summer leaves, peaceful travel",
+      "pose_ref": null,
+      "inspire": "<desktop-library>/熏香花朵凌然绽放/他山之石/33_6a4636c000_01.webp",
+      "inspire_from": "熏香花朵凌然绽放"
+    },
+    {
+      "id": "t04",
+      "character": "frieren",
+      "shot": "strict side profile bust",
+      "pose": "looking left, hair tied in a low bun, calm expression",
+      "mood": "white background, clean portrait, pencil-sketch line quality but colored anime",
+      "pose_ref": null,
+      "inspire": "<desktop-library>/熏香花朵凌然绽放/他山之石/39_68bab08900_05.webp",
+      "inspire_from": "熏香花朵凌然绽放"
+    },
+    {
+      "id": "t05",
+      "character": "frieren",
+      "shot": "selfie polaroid, two-shot crop but only Frieren in frame",
+      "pose": "leaning toward camera, one hand making a peace sign beside her face, bright smile",
+      "mood": "instant photo frame, soft indoor light, playful",
+      "pose_ref": null,
+      "inspire": "<desktop-library>/熏香花朵凌然绽放/他山之石/32_6a31261300_02.webp",
+      "inspire_from": "熏香花朵凌然绽放"
+    }
+  ]
+}

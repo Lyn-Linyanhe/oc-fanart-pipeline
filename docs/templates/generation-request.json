@@ -1,0 +1,52 @@
+{
+  "schema_version": "0.1",
+  "request_id": "work-0001",
+  "character": "character-id",
+  "intent": {
+    "summary": "本次想画什么",
+    "preserve_persona": true,
+    "allowed_changes": [],
+    "must_not_copy": []
+  },
+  "reference_package": {
+    "identity": [],
+    "style": [],
+    "composition": {
+      "group_id": null,
+      "ordered_paths": [],
+      "is_split_wide": false
+    },
+    "upload_manifest": [],
+    "request_ready": false,
+    "capability_check": {
+      "provider": null,
+      "model": null,
+      "max_images": null,
+      "checked_at": null,
+      "status": "unverified"
+    }
+  },
+  "image_design": {
+    "identity": null,
+    "persona_expression": null,
+    "action_and_form": null,
+    "camera_and_composition": null,
+    "scene_lighting_palette": null,
+    "style_material_detail": null,
+    "decorations": [],
+    "visible_psychology": null,
+    "negative_constraints": []
+  },
+  "prompt": {
+    "positive": null,
+    "negative": null,
+    "version": "0.1"
+  },
+  "parameters": {
+    "preset": "draft",
+    "model": null,
+    "size": null,
+    "quality": null,
+    "output_format": null
+  }
+}

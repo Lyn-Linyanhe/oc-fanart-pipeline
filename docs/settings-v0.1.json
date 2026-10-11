@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.1",
+  "document_kind": "design_settings",
+  "implementation_status": "not_integrated",
+  "generation_presets": {
+    "draft": {
+      "model": "gpt-image-2.5-sunburst",
+      "size": "1024x1024",
+      "quality": "medium",
+      "output_format": null,
+      "status": "legacy_compatibility_baseline",
+      "is_lowest_cost_verified": false
+    },
+    "high_resolution": {
+      "model": null,
+      "size": null,
+      "quality": null,
+      "output_format": null,
+      "target": "4k_if_supported",
+      "requires_selected_parent_image": true,
+      "capability_status": "unverified"
+    }
+  },
+  "reference_policy": {
+    "identity_typical_count": [1, 2],
+    "style_typical_count": [0, 1],
+    "composition_group_count": 1,
+    "style_upload_enabled": true,
+    "preserve_split_wide_order": true,
+    "allow_partial_split_wide": false,
+    "deduplicate_uploads": true,
+    "max_upload_images": null,
+    "capability_status": "unverified"
+  },
+  "automation_policy": {
+    "max_automatic_revision_rounds": 1,
+    "generation_post_auto_retry": false,
+    "requires_explicit_batch_and_budget": true,
+    "review_model_candidates": ["gpt-6-luna", "deepseekv4.1"],
+    "review_model_capability_status": "unverified",
+    "search_browser_sessions": 1,
+    "description_parallelism": null
+  },
+  "execution_statuses": ["not_submitted", "queued", "running", "succeeded", "failed", "unknown"],
+  "source_selection_statuses": ["keep", "reject", "manual_review"],
+  "review_statuses": ["pass", "revise", "manual_review", "quarantine"],
+  "storage_states": ["active", "quarantine"],
+  "quarantine_policy": {
+    "mode": "reversible_version_marker",
+    "delete_original": false,
+    "retain_history": true
+  }
+}

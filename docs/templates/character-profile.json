@@ -1,0 +1,52 @@
+{
+  "schema_version": "0.1",
+  "id": "character-id",
+  "name": "角色名",
+  "series": "所属 IP",
+  "aliases": [],
+  "appearance": {
+    "recognition_features": [],
+    "hair": null,
+    "eyes": null,
+    "ears_or_species": null,
+    "body": null,
+    "default_outfit": null,
+    "optional_outfits": []
+  },
+  "persona": {
+    "personality": [],
+    "background": [],
+    "relationships": [],
+    "speech_or_expression_style": [],
+    "action_habits": []
+  },
+  "emotional_expression": {
+    "default": {
+      "visible_facts": [],
+      "interpretation": null
+    },
+    "states": {}
+  },
+  "creation_defaults": {
+    "preserve": [],
+    "allowed_changes": [],
+    "must_confirm_before_change": []
+  },
+  "facts": [],
+  "reference_library": {
+    "identity": [],
+    "approved_appearance": [],
+    "style": []
+  },
+  "coverage_gaps": [],
+  "desktop": {
+    "series": null,
+    "character": null
+  },
+  "legacy_generation_projection": {
+    "bible_path": "bible.json",
+    "lock_is_still_runtime_identity_text": true,
+    "forbid_is_still_runtime_negative_text": true,
+    "style_is_still_runtime_style_text": true
+  }
+}

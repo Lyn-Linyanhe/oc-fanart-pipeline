@@ -1,0 +1,184 @@
+{
+  "schema_version": "0.1",
+  "id": "frieren",
+  "name": "芙莉莲",
+  "series": "葬送的芙莉莲",
+  "aliases": ["Frieren"],
+  "appearance": {
+    "recognition_features": [
+      "银白色长发，双马尾",
+      "绿色眼睛",
+      "精灵尖耳",
+      "小型红色垂坠耳饰",
+      "身材娇小，少女感比例"
+    ],
+    "hair": "long silver-white twintails",
+    "eyes": "green",
+    "ears_or_species": "pointed elf ears",
+    "body": "petite, youthful proportions",
+    "default_outfit": "white robe with gold trim, striped black-and-white inner shirt, dark pants, brown boots, wooden staff with a large red orb",
+    "optional_outfits": [
+      {
+        "id": "winter_outfit",
+        "description": "冬装设定，具体以可用参考图为准",
+        "verification": "pending"
+      },
+      {
+        "id": "modern_au",
+        "description": "现代背景服装，不能与默认服装混用",
+        "verification": "pending"
+      }
+    ]
+  },
+  "persona": {
+    "personality": [
+      {
+        "text": "表面平静、慢热，对日常小事和魔法有持续好奇心",
+        "kind": "interpretation",
+        "verification": "pending",
+        "source": "待补原作场景出处"
+      }
+    ],
+    "background": [
+      {
+        "text": "精灵魔法使，拥有远超人类的时间尺度",
+        "kind": "canon_fact",
+        "verification": "pending",
+        "source": "待补原作出处"
+      }
+    ],
+    "relationships": [],
+    "speech_or_expression_style": [
+      {
+        "text": "情绪常收在细微表情和停顿里，不默认使用夸张大笑",
+        "kind": "interpretation",
+        "verification": "pending",
+        "source": "待补原作场景出处"
+      }
+    ],
+    "action_habits": [
+      {
+        "text": "平静站立、观察、旅行中的自然动作；具体动作由本次创作意图决定",
+        "kind": "interpretation",
+        "verification": "pending",
+        "source": "项目初步设定"
+      }
+    ]
+  },
+  "emotional_expression": {
+    "default": {
+      "visible_facts": [
+        "眼神和嘴角变化可以很轻微",
+        "身体姿态通常不需要夸张张开"
+      ],
+      "interpretation": "克制、慢热的情绪表达；具体情绪不能只写心理词，要转换成可见动作"
+    },
+    "states": {
+      "quiet_curiosity": {
+        "visible_facts": [
+          "视线停在感兴趣的对象上",
+          "眼睛略微睁大或头部轻微偏转",
+          "身体保持放松"
+        ],
+        "interpretation": "对新奇事物产生兴趣但没有大幅外露"
+      },
+      "gentle_happiness": {
+        "visible_facts": [
+          "眼神变柔",
+          "嘴角轻微上扬",
+          "手部动作放松"
+        ],
+        "interpretation": "温和满足，不默认改成夸张开怀大笑"
+      },
+      "surprise": {
+        "visible_facts": [
+          "眉眼短暂抬起",
+          "嘴巴略微张开",
+          "身体出现轻微停顿"
+        ],
+        "interpretation": "意外但仍保留角色整体气质"
+      }
+    }
+  },
+  "creation_defaults": {
+    "preserve": [
+      "银白色双马尾、绿色眼睛、尖耳、红色耳饰",
+      "角色的娇小体型和精灵辨识度",
+      "人设带来的克制与慢热表达，除非本次明确选择反差表现"
+    ],
+    "allowed_changes": [
+      "本次任务明确指定的服装、发型处理、场景、姿势、表情和画风",
+      "现代 AU 或其他二创版本，但必须在请求中标明"
+    ],
+    "must_confirm_before_change": [
+      "发色、眼睛颜色、尖耳、核心配饰",
+      "默认服装是否替换",
+      "是否采用夸张反差表情",
+      "是否把他人作品中的人物身份、脸、发型或服装带入"
+    ]
+  },
+  "facts": [
+    {
+      "id": "frieren-lock-from-legacy-bible",
+      "text": "旧版生图锁定文字保存在 bible.json 的 lock 字段",
+      "kind": "project_rule",
+      "verification": "verified",
+      "source": "characters/frieren/bible.json"
+    }
+  ],
+  "reference_library": {
+    "identity": [
+      {
+        "id": "frieren-fullbody-primary",
+        "path": "characters/frieren/refs/01_fullbody.png",
+        "views": ["full_body"],
+        "roles": ["identity", "body_and_outfit"],
+        "source": "project_reference_copy",
+        "provenance_status": "pending",
+        "approval": "pending",
+        "upload_default": true,
+        "notes": "当前旧版 generate.py 按排序第一张 refs 上传；不代表新参考包已接入"
+      },
+      {
+        "id": "frieren-turnaround",
+        "path": "<desktop-library>/葬送的芙莉莲/角色/芙莉莲/我的原创/refs/02_turnaround.png",
+        "views": ["front", "side", "back", "outfit_sheet"],
+        "roles": ["identity", "multi_angle", "body_and_outfit"],
+        "source": "desktop_reference",
+        "provenance_status": "pending",
+        "approval": "pending",
+        "upload_default": false,
+        "notes": "设定集对照图；当前 README 明确不送进 API"
+      },
+      {
+        "id": "frieren-expressions",
+        "path": "<desktop-library>/葬送的芙莉莲/角色/芙莉莲/我的原创/refs/03_expressions.png",
+        "views": ["face", "expressions", "outfit_sheet"],
+        "roles": ["identity", "expression"],
+        "source": "desktop_reference",
+        "provenance_status": "pending",
+        "approval": "pending",
+        "upload_default": false,
+        "notes": "表情与冬装设定对照图；当前 README 明确不送进 API"
+      }
+    ],
+    "approved_appearance": [],
+    "style": []
+  },
+  "coverage_gaps": [
+    "缺少已核实来源的四分之三单人脸部参考",
+    "缺少已核实来源的独立背面全身参考",
+    "尚无人工认可的二创形象参考",
+    "尚无独立且已认可的画风参考"
+  ],
+  "desktop": {
+    "series": "葬送的芙莉莲",
+    "character": "芙莉莲"
+  },
+  "legacy_generation_projection": {
+    "bible_path": "bible.json",
+    "lock_is_still_runtime_identity_text": true,
+    "forbid_is_still_runtime_negative_text": true,
+    "style_is_still_runtime_style_text": true
+  }
+}
